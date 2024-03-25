@@ -1,49 +1,41 @@
-import socketserver,subprocess
-import signal,os,argparse
+import socketserver
 
-
-class MyTCPHandler(socketserver.BaseRequestHandler):
+class ChatHandler(socketserver.BaseRequestHandler):
     def handle(self):
+        print(f"New connection from {self.client_address}")
+        self.request.sendall("Welcome to the chat server!\n".encode())
+
         while True:
-            self.data = self.request.recv(2048)
-            self.msg = self.data.decode('utf-8')
-            print(self.msg)
-            self.request.sendall(self.msg.encode('utf-8'))
-            print("PID: %d" % os.getpid())
+            message = self.request.recv(1024).decode().strip()
+            if not message:
+                break
+            print(f"Received from {self.client_address}: {message}")
 
+            # Broadcast the message to all clients
+            for client in self.server.clients:
+                print(len(self.server.clients))
+                try:
+                    if client != self.request:
+                        client.sendall(f"{self.client_address[0]}:{self.client_address[1]} says: {message}\n".encode())
+                except:
+                    client.close()
+                    self.server.clients.remove(client)
+                    print(f"Connection from {client.getpeername()} closed due to error")
 
-#Hereda para concurrencia
-class ProcTCPServer(socketserver.ForkingMixIn, socketserver.TCPServer):
-    pass
+    def setup(self):
+        self.server.clients.append(self.request)
 
-class ThrTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
+    def finish(self):
+        self.server.clients.remove(self.request)
+        print(f"Connection from {self.client_address} closed")
+
+class ChatServer(socketserver.ThreadingTCPServer):
+    def __init__(self, server_address, handler_class):
+        super().__init__(server_address, handler_class)
+        self.clients = []
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Comandos")
-    parser.add_argument("-p","--port", type=int,required=True,help="Numero de puerto del servidor")
-    parser.add_argument("-c","--concurrence", type=str ,required=True,help="P o T dependiendo de un proceso o un hilo")
-    args = parser.parse_args()
-    HOST, PORT = "localhost", args.port
-    print("Server iniciado en: ",HOST,PORT)
-    socketserver.TCPServer.allow_reuse_address = True
-    # Create the server, binding to localhost on port 9999
-    
-    if args.concurrence == 'p':
-        with ProcTCPServer((HOST, PORT), MyTCPHandler) as server:
-            server.serve_forever()
-            try:
-                signal.pause()
-            except:
-                server.shutdown()
-            #server.shutdown()
-
-
-    if args.concurrence == 't':
-        with ThrTCPServer((HOST, PORT), MyTCPHandler) as server:
-            server.serve_forever()
-            try:
-                signal.pause()
-            except:
-                server.shutdown()
-            #server.shutdown()
+    HOST, PORT = "localhost", 5555
+    with ChatServer((HOST, PORT), ChatHandler) as server:
+        print(f"Server started on {HOST}:{PORT}")
+        server.serve_forever()
