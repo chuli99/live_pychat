@@ -6,17 +6,19 @@ class ChatHandler(socketserver.BaseRequestHandler):
         self.request.sendall("Welcome to the chat server!\n".encode())
 
         while True:
-            message = self.request.recv(1024).decode().strip()
+            print(self.request)
+            message = self.request.recv(512).decode().strip()
             if not message:
                 break
             print(f"Received from {self.client_address}: {message}")
 
-            # Broadcast the message to all clients
+            # Broadcast para enviar mensajes a todos los clientes:
             for client in self.server.clients:
-                print(len(self.server.clients))
+                #Ver cuantos clientes hay en linea.
+                #print(len(self.server.clients))
                 try:
                     if client != self.request:
-                        client.sendall(f"{self.client_address[0]}:{self.client_address[1]} says: {message}\n".encode())
+                        client.sendall(f"({self.client_address[0]}:{self.client_address[1]}): {message}".encode())
                 except:
                     client.close()
                     self.server.clients.remove(client)
@@ -35,7 +37,7 @@ class ChatServer(socketserver.ThreadingTCPServer):
         self.clients = []
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 5555
+    HOST, PORT = "localhost", 5554
     with ChatServer((HOST, PORT), ChatHandler) as server:
         print(f"Server started on {HOST}:{PORT}")
         server.serve_forever()
