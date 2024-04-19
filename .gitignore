@@ -1,2 +1,5 @@
 venv/
 doc.txt
+users.txt
+testeoCliente.py
+testeoServer.py
