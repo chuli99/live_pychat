@@ -3,4 +3,5 @@ doc.txt
 users.txt
 testeoCliente.py
 testeoServer.py
+hash_password.py
 __pychache__/
