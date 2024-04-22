@@ -11,11 +11,12 @@ class ChatHandler(socketserver.BaseRequestHandler):
         
         print(f"New connection from {self.client_address}")
         self.request.sendall("Welcome to PyChat!\n".encode())
-        option = self.request.recv(512).decode().strip()
-        room = option.lower()
+        print(self.request)
+        room = self.request.recv(512).decode().strip()
+        room = room.lower()
         if room not in self.rooms:
             self.request.sendall("Invalid room. Closing connection.\n".encode())
-            return
+
         self.rooms[room].append(self.request)
         self.request.sendall(f"Welcome to {room} room!\n".encode())
 

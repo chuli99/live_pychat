@@ -27,13 +27,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     
     while True:
         menu.show_login_register()
-        choice = input("Choose an option")
+        choice = input("Choose an option:")
         if choice == "1":
             register.register()
             break
         elif choice == "2":
-            login.login()
-            if login.login() == True:
+            username = input(str("Enter username:"))
+            password = input(str("Enter password:"))
+            login_result = login.login(username,password)
+            if login_result == True:
                 break
             else:
                 continue
@@ -42,6 +44,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         
         else:
             print("Wrong option")
+    
     while True:    
         menu.show_menu()
         option = input("Option:")
@@ -49,7 +52,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             print("Chat P2P is not available")
         elif option == "2":
             menu.show_rooms()
-            room = input("Select rooms: <name_room>")
+            room = input("Select rooms: <name_room>:")
             if room.lower() in rooms:
                 #Inicializo hilo para recibir mensajes
                 sock.sendall(room.encode())

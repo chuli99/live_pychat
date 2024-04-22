@@ -1,7 +1,7 @@
-def login():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+from hash_password import hash_password
 
+def login(username,password):
+    password = hash_password(password)
     with open("users.txt", "r") as file:
         for line in file:
             stored_username, stored_password = line.strip().split(":")
