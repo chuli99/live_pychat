@@ -2,7 +2,7 @@ def show_menu():
     print("+===============================+")
     print("|          Pychat Menu          |")
     print("+===============================+")
-    print("| 1- P2P Chat                   |")
+    print("| 1- Private Chat               |")
     print("| 2- Join Room                  |")
     print("| 3- Exit                       |")
     print("+===============================+")
