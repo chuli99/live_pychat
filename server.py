@@ -11,7 +11,8 @@ class ChatHandler(socketserver.BaseRequestHandler):
         
         print(f"New connection from {self.client_address}")
         self.request.sendall("Welcome to PyChat!\n".encode())
-        print(self.request)
+        #print(self.request)
+        username = self.request.recv(512).decode()
         room = self.request.recv(512).decode().strip()
         room = room.lower()
         if room not in self.rooms:
@@ -24,7 +25,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
             message = self.request.recv(512).decode().strip()
             if not message:
                 break
-            print(f"Received from {self.client_address}: {message} in:({room} room)")
+            print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
             print(message)
             if message == "exit":
                 print(self.client_address," remove.")
@@ -35,7 +36,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
             for client in self.rooms[room]:
                 try:
                     if client != self.request:
-                        client.sendall(f"({self.client_address[0]}:{self.client_address[1]}): {message}".encode())
+                        client.sendall(f"({self.client_address[0]}:{self.client_address[1]}->{username}): {message}".encode())
                         
                 except:
                     client.close()

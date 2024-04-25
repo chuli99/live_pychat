@@ -32,8 +32,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             register.register()
             break
         elif choice == "2":
-            username = input(str("Enter username:"))
-            password = input(str("Enter password:"))
+            username = input("Enter username:")
+            password = input("Enter password:")
             login_result = login.login(username,password)
             if login_result == True:
                 break
@@ -45,7 +45,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         else:
             print("Wrong option")
     
-    while True:    
+    while True:
+        sock.sendall(username.encode())
         menu.show_menu()
         option = input("Option:")
         if option == "1":
