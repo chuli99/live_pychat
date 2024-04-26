@@ -1,4 +1,4 @@
-import socketserver
+import socketserver,messages
 
 class ChatHandler(socketserver.BaseRequestHandler):
     rooms = {
@@ -20,7 +20,8 @@ class ChatHandler(socketserver.BaseRequestHandler):
 
         self.rooms[room].append(self.request)
         self.request.sendall(f"Welcome to {room} room!\n".encode())
-
+        for msgs in (messages.read_messages(room)):
+            self.request.sendall(msgs.encode())    
         while True:
             message = self.request.recv(512).decode().strip()
             if not message:
@@ -32,12 +33,15 @@ class ChatHandler(socketserver.BaseRequestHandler):
                 client.close()
                 self.rooms[room].remove(client)
 
-            # Broadcast para enviar mensajes a todos los clientes en la misma sala:
+            #Broadcast para enviar mensajes a todos los clientes en la misma sala:
             for client in self.rooms[room]:
                 try:
                     if client != self.request:
-                        client.sendall(f"({self.client_address[0]}:{self.client_address[1]}->{username}): {message}".encode())
-                        
+                        print(f"ENVIANDO:({self.client_address[0]}:{self.client_address[1]}->{username}): {message}")
+                        sent_message = (f"({username})->{message}")
+                        client.sendall(sent_message.encode())
+                        #Guarda el mensaje en un txt
+                        messages.save_message(sent_message,room)
                 except:
                     client.close()
                     self.rooms[room].remove(client)

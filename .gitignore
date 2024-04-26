@@ -1,7 +1,7 @@
 venv/
+__pycache__/
 doc.txt
 users.txt
 testeoCliente.py
 testeoServer.py
 hash_password.py
-__pychache__/

@@ -30,7 +30,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         choice = input("Choose an option:")
         if choice == "1":
             register.register()
-            break
+            continue
         elif choice == "2":
             username = input("Enter username:")
             password = input("Enter password:")
