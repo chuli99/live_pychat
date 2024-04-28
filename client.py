@@ -4,7 +4,7 @@ import menu, register, login
 from subprocess import Popen,PIPE
 
 
-HOST, PORT = "localhost", 5554
+HOST, PORT = "192.168.0.129", 5554
 
 def receive_messages(sock):
     while True:
@@ -16,9 +16,10 @@ def receive_messages(sock):
 
 def send_messages(sock):
     while True:
-        message = input()
+        message = input("->")
         sock.sendall(message.encode())
-
+        if message == "exit":
+            break
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     rooms = ['programmers','designers','managers']
     sock.connect((HOST, PORT))
@@ -36,6 +37,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             password = input("Enter password:")
             login_result = login.login(username,password)
             if login_result == True:
+                sock.sendall(username.encode())
                 break
             else:
                 continue
@@ -46,7 +48,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             print("Wrong option")
     
     while True:
-        sock.sendall(username.encode())
         menu.show_menu()
         option = input("Option:")
         if option == "1":
