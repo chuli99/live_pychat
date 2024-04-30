@@ -1,4 +1,5 @@
-import socketserver,messages
+import socketserver
+import messages
 
 class ChatHandler(socketserver.BaseRequestHandler):
     rooms = {
@@ -8,11 +9,12 @@ class ChatHandler(socketserver.BaseRequestHandler):
     }
 
     def handle(self):
-        while True:
-            print(f"New connection from {self.client_address}")
-            self.request.sendall("Welcome to PyChat!\n".encode())
-            #print(self.request)
-            username = self.request.recv(512).decode()
+        
+        print(f"New connection from {self.client_address}")
+        self.request.sendall("Welcome to PyChat!\n".encode())
+        #print(self.request)
+        username = self.request.recv(512).decode()
+        while True:    
             room = self.request.recv(512).decode().strip()
             room = room.lower()
             if room not in self.rooms:
@@ -26,12 +28,14 @@ class ChatHandler(socketserver.BaseRequestHandler):
                 message = self.request.recv(512).decode().strip()
                 if not message:
                     break
-                print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
-                print(message)
                 if message == "exit":
                     print(self.client_address," remove.")
-                    self.rooms[room].remove(client)
+                    self.rooms[room].remove(self.request)
                     break
+
+                print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
+                print(message)
+                
 
                 #Broadcast para enviar mensajes a todos los clientes en la misma sala:
                 for client in self.rooms[room]:
@@ -61,7 +65,7 @@ class ChatServer(socketserver.ThreadingTCPServer):
         super().__init__(server_address, handler_class)
 
 if __name__ == "__main__":
-    HOST, PORT = "192.168.0.129", 5554
+    HOST, PORT = "localhost", 5554
     with ChatServer((HOST, PORT), ChatHandler) as server:
         print(f"Server started on {HOST}:{PORT}")
         server.serve_forever()

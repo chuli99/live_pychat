@@ -4,7 +4,7 @@ import menu, register, login
 from subprocess import Popen,PIPE
 
 
-HOST, PORT = "192.168.0.129", 5554
+HOST, PORT = "localhost", 5554
 
 def receive_messages(sock):
     while True:
@@ -13,13 +13,13 @@ def receive_messages(sock):
             break
         print(message)
         
-
 def send_messages(sock):
     while True:
-        message = input("->")
+        message = input("")
         sock.sendall(message.encode())
         if message == "exit":
             break
+        
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     rooms = ['programmers','designers','managers']
     sock.connect((HOST, PORT))
@@ -33,8 +33,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             register.register()
             continue
         elif choice == "2":
-            username = input("Enter username:")
-            password = input("Enter password:")
+            #username = input("Enter username:")
+            #password = input("Enter password:")
+            username = "chuli99"
+            password = "boca1234"
             login_result = login.login(username,password)
             if login_result == True:
                 sock.sendall(username.encode())
@@ -54,21 +56,25 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             print("Chat P2P is not available")
         elif option == "2":
             menu.show_rooms()
-            room = input("Select rooms: <name_room>:")
+            #room = input("Select rooms: <name_room>:")
+            room = "programmers"
             if room.lower() in rooms:
                 #Inicializo hilo para recibir mensajes
                 sock.sendall(room.encode())
                 recieve_msg_thread = threading.Thread(target=receive_messages,args=(sock,))
                 send_msg_thread = threading.Thread(target=send_messages,args=(sock,))
-
+                
                 send_msg_thread.start()
                 recieve_msg_thread.start()
+                
                 #Esperar que ambos hilos terminen
                 recieve_msg_thread.join() 
                 send_msg_thread.join()
+            
             else:
                 print("Please select a correct room")
                 continue
         elif option == 3:
             break
+
     
