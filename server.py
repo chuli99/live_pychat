@@ -16,21 +16,27 @@ class ChatHandler(socketserver.BaseRequestHandler):
         username = self.request.recv(512).decode()
         while True:    
             room = self.request.recv(512).decode().strip()
+            print(room)
             room = room.lower()
             if room not in self.rooms:
                 self.request.sendall("Invalid room. Closing connection.\n".encode())
 
             self.rooms[room].append(self.request)
             self.request.sendall(f"Welcome to {room} room!\n".encode())
-            for msgs in (messages.read_messages(room)):
-                self.request.sendall(msgs.encode())    
+            if messages.read_messages(room) == "missing file":
+                pass
+            else:
+                for msgs in (messages.read_messages(room)):
+                    self.request.sendall(msgs.encode())    
             while True:
                 message = self.request.recv(512).decode().strip()
                 if not message:
                     break
                 if message == "exit":
                     print(self.client_address," remove.")
+                    self.request.sendall("-exit-".encode())
                     self.rooms[room].remove(self.request)
+                    print(len(self.rooms[room]))
                     break
 
                 print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")

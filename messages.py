@@ -6,6 +6,9 @@ def save_message(msg,rm):
     
 def read_messages(rm):
     room = (f"{rm}.txt")
-    with open(room,"r") as file:
-        lines = file.readlines()
-    return lines
+    try: 
+        with open(room,"r") as file:
+            lines = file.readlines()
+            return lines
+    except:
+        return "missing file"
