@@ -1,6 +1,6 @@
 import socket
 import threading
-import menu, register, login
+import menu, register, login, os, time
 from subprocess import Popen,PIPE
 
 
@@ -50,10 +50,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         
         else:
             print("Wrong option")
+    os.system('clear')
     while True:
         while True:
             menu.show_menu()
             option = input("Option:")
+            os.system('clear')
             if option == "1":
                 print("Chat P2P is not available")
             elif option == "2":
@@ -63,6 +65,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 if room.lower() in rooms:
                     #Inicializo hilo para recibir mensajes
                     sock.sendall(room.encode())
+                    os.system('clear')
                     recieve_msg_thread = threading.Thread(target=receive_messages,args=(sock,))
                     send_msg_thread = threading.Thread(target=send_messages,args=(sock,))
                 
@@ -72,8 +75,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     #Esperar que ambos hilos terminen
                     recieve_msg_thread.join() 
                     send_msg_thread.join()
-                    print(recieve_msg_thread.join())
-                    print("Hasta la proxima!")
+                    print(f"Leaving from {room} chat..")
+                    time.sleep(3)
+                    print("See you soon!")
+                    time.sleep(1)
                     break
                 else:
                     print("Please select a correct room")
