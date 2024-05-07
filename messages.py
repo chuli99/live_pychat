@@ -1,9 +1,11 @@
+import datetime
 
 def save_message(msg,rm):
     room = (f"{rm}.txt")
+    today = datetime.date.today()
     with open(room,"a") as file:
-        file.write(f"{msg}\n")
-    
+        file.write(f"({today}){msg}\n")
+
 def read_messages(rm):
     room = (f"{rm}.txt")
     try: 
