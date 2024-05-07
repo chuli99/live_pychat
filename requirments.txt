@@ -2,3 +2,4 @@ argparse
 socketserver
 socket
 haslib
+colorama
