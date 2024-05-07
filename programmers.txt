@@ -1,8 +1,4 @@
-(sebapocha)->buenas tardes
-(chuli99)->como estas querido?
-(sebapocha)->todo bien por suerte, que hacias?
-(chuli99)->tratando de solucionar el bug
-(sebapocha)->te ayudo si queres
-(chuli99)->buenas tardes
-(chuli99)->todo bien
-(sebapocha)->askljagfd4
+(2024-05-06)(chuli99)->buenas tardes, estoy tratando de solucionar el codigo
+(2024-05-06)(chuli99)->novedades?
+(2024-05-06)(sebapocha)->buenas, que dicen?
+(2024-05-06)(chuli99)->tratando de solucionar cosas

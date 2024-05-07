@@ -2,9 +2,9 @@ import socket
 import threading
 import menu, register, login, os, time
 from subprocess import Popen,PIPE
+from colorama import Fore,Style,Back
 
-
-HOST, PORT = "localhost", 5554
+HOST, PORT = "localhost", 5555
 
 def receive_messages(sock):
     while True:
@@ -35,10 +35,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             register.register()
             continue
         elif choice == "2":
-            #username = input("Enter username:")
-            #password = input("Enter password:")
-            username = "chuli99"
-            password = "boca1234"
+            username = input("Enter username:")
+            password = input("Enter password:")
+            #username = "chuli99"
+            #password = "boca1234"
             login_result = login.login(username,password)
             if login_result == True:
                 sock.sendall(username.encode())
@@ -49,7 +49,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             break  
         
         else:
-            print("Wrong option")
+            print(Fore.RED + "Wrong option")
+            print(Style.RESET_ALL)
+    time.sleep(1)
     os.system('clear')
     while True:
         while True:
@@ -57,7 +59,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             option = input("Option:")
             os.system('clear')
             if option == "1":
-                print("Chat P2P is not available")
+                print(Fore.RED + "Chat P2P is not available")
+                print(Style.RESET_ALL)
             elif option == "2":
                 menu.show_rooms()
                 room = input("Select rooms: <name_room>:")
@@ -75,9 +78,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     #Esperar que ambos hilos terminen
                     recieve_msg_thread.join() 
                     send_msg_thread.join()
-                    print(f"Leaving from {room} chat..")
+                    print(f"{Fore.RED}Leaving from {room} chat..")
+                    print(Style.RESET_ALL)
                     time.sleep(3)
-                    print("See you soon!")
+                    print(Back.GREEN + "See you soon!")
+                    print(Style.RESET_ALL)
                     time.sleep(1)
                     break
                 else:

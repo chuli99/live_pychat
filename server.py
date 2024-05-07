@@ -40,18 +40,20 @@ class ChatHandler(socketserver.BaseRequestHandler):
                     break
 
                 print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
-                print(message)
                 
+                #Guarda el mensaje en un txt
+                sent_message = (f"({username})->{message}")
+                print("Saving message")
+                messages.save_message(sent_message,room)
 
                 #Broadcast para enviar mensajes a todos los clientes en la misma sala:
                 for client in self.rooms[room]:
                     try:
                         if client != self.request:
-                            print(f"ENVIANDO:({self.client_address[0]}:{self.client_address[1]}->{username}): {message}")
-                            sent_message = (f"({username})->{message}")
+                            print(f"SENDING:({self.client_address[0]}:{self.client_address[1]}->{username}): {message}")
                             client.sendall(sent_message.encode())
-                            #Guarda el mensaje en un txt
-                            #messages.save_message(sent_message,room)
+                            
+                            
                     except:
                         client.close()
                         self.rooms[room].remove(client)
@@ -71,7 +73,7 @@ class ChatServer(socketserver.ThreadingTCPServer):
         super().__init__(server_address, handler_class)
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 5554
+    HOST, PORT = "localhost", 5555
     with ChatServer((HOST, PORT), ChatHandler) as server:
         print(f"Server started on {HOST}:{PORT}")
         server.serve_forever()
