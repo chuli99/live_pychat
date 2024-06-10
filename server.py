@@ -1,4 +1,4 @@
-import socketserver
+import socketserver, socket, threading
 import messages
 
 class ChatHandler(socketserver.BaseRequestHandler):
@@ -68,12 +68,40 @@ class ChatHandler(socketserver.BaseRequestHandler):
                 clients.remove(self.request)
                 print(f"Connection from {self.client_address} closed")
 
-class ChatServer(socketserver.ThreadingTCPServer):
-    def __init__(self, server_address, handler_class):
-        super().__init__(server_address, handler_class)
+class ChatServerIPV4(socketserver.ThreadingMixIn,socketserver.TCPServer):
+    pass
+        
+
+class ChatServerIPV6(socketserver.ThreadingMixIn,socketserver.TCPServer):
+    address_family = socket.AF_INET6
+    print("IPV6 reeeey")
+    pass  
+
+
+def connections(address):
+    if address[0] == socket.AF_INET:
+        print("entra ipv4")
+        with ChatServerIPV4((HOST, PORT), ChatHandler) as server:
+            print(f"Server started on {HOST}:{PORT}")
+            server.serve_forever()
+    
+    elif address[0] == socket.AF_INET6:
+        print("IPV6 connection")
+        with ChatServerIPV6(("::1",PORT),ChatHandler) as server:
+            print(f"Server started on ::1 :{PORT}")
+            server.serve_forever()
+            
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 5555
-    with ChatServer((HOST, PORT), ChatHandler) as server:
-        print(f"Server started on {HOST}:{PORT}")
-        server.serve_forever()
+    socketserver.TCPServer.allow_reuse_address = True
+    addresses = []
+    addresses = socket.getaddrinfo("localhost",5555,socket.AF_UNSPEC,socket.SOCK_STREAM)
+    thread = []
+    for a in addresses:
+        thread.append(threading.Thread(target = connections,args=(a,)))
+    #print(thread)
+    for t in thread:
+        t.start()
+        
+    
