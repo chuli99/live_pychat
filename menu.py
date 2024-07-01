@@ -2,9 +2,8 @@ def show_menu():
     print("+===============================+")
     print("|          Pychat Menu          |")
     print("+===============================+")
-    print("| 1- Private Chat               |")
-    print("| 2- Join Room                  |")
-    print("| 3- Exit                       |")
+    print("| 1- Join Room                  |")
+    print("| 2- Exit                       |")
     print("+===============================+")
 
 def show_rooms():
