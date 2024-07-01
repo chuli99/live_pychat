@@ -1,4 +1,6 @@
-import socketserver, socket, threading
+import socketserver
+import socket
+import threading
 import messages
 
 class ChatHandler(socketserver.BaseRequestHandler):
@@ -7,28 +9,36 @@ class ChatHandler(socketserver.BaseRequestHandler):
         "designers": [],
         "managers": []
     }
-    rooms_lock = threading.Lock()  
+    rooms_lock = threading.Lock()
 
     def handle(self):
-        
         print(f"New connection from {self.client_address}")
         self.request.sendall("Welcome to PyChat!\n".encode())
         username = self.request.recv(512).decode()
-        while True:    
+        current_room = None
+        
+        while True:
             room = self.request.recv(512).decode().strip()
             print(room)
             room = room.lower()
+            if not room:
+                self.request.sendall("Room name cannot be empty. Closing connection.\n".encode())
+                break
             if room not in self.rooms:
                 self.request.sendall("Invalid room. Closing connection.\n".encode())
+                break
 
-            with self.rooms_lock:  
-                self.rooms[room].append(self.request)  
+            with self.rooms_lock:
+                self.rooms[room].append(self.request)
             self.request.sendall(f"Welcome to {room} room!\n".encode())
+            current_room = room
+
             if messages.read_messages(room) == "missing file":
                 pass
             else:
-                for msgs in (messages.read_messages(room)):
-                    self.request.sendall(msgs.encode())    
+                for msgs in messages.read_messages(room):
+                    self.request.sendall(msgs.encode())
+
             while True:
                 message = self.request.recv(512).decode().strip()
                 if not message:
@@ -36,21 +46,22 @@ class ChatHandler(socketserver.BaseRequestHandler):
                 if message == "exit":
                     print(self.client_address, " remove.")
                     self.request.sendall("-exit-".encode())
-                    with self.rooms_lock:  
-                        self.rooms[room].remove(self.request)  
-                    print(len(self.rooms[room]))
+                    with self.rooms_lock:
+                        self.rooms[room].remove(self.request)
+                    print(f"Users in rooms:{len(self.rooms[room])}")
+                    current_room = None
                     break
 
                 print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
-                
-                #Save message in txt
-                sent_message = (f"({username})->{message}")
+
+                # Save message in txt
+                sent_message = f"({username})->{message}"
                 print("Saving message")
                 messages.save_message(sent_message, room)
 
-                #Broadcast para enviar mensajes a todos los clientes en la misma sala:
-                with self.rooms_lock:  
-                    clients = self.rooms[room][:]  
+                # Broadcast para enviar mensajes a todos los clientes en la misma sala:
+                with self.rooms_lock:
+                    clients = self.rooms[room][:]
                 for client in clients:
                     try:
                         if client != self.request:
@@ -58,7 +69,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
                             client.sendall(sent_message.encode())
                     except:
                         client.close()
-                        with self.rooms_lock:  
+                        with self.rooms_lock:
                             self.rooms[room].remove(client)
                         print(f"Connection from {client.getpeername()} closed due to error")
 
@@ -66,7 +77,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
         pass
 
     def finish(self):
-        with self.rooms_lock:  
+        with self.rooms_lock:
             for room, clients in self.rooms.items():
                 if self.request in clients:
                     clients.remove(self.request)
@@ -74,30 +85,26 @@ class ChatHandler(socketserver.BaseRequestHandler):
 
 class ChatServerIPV4(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
-        
 
 class ChatServerIPV6(socketserver.ThreadingMixIn, socketserver.TCPServer):
     address_family = socket.AF_INET6
-    pass  
-
+    pass
 
 def connections(address):
     if address[0] == socket.AF_INET:
         with ChatServerIPV4((HOST, PORT), ChatHandler) as server:
             print(f"Server started on {HOST}:{PORT}")
             server.serve_forever()
-    
     elif address[0] == socket.AF_INET6:
         with ChatServerIPV6((HOST_6, PORT_6), ChatHandler) as server:
             print(f"Server started on {HOST_6}:{PORT_6}")
             server.serve_forever()
-            
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 5555
     HOST_6, PORT_6 = "::1", 5556
     socketserver.TCPServer.allow_reuse_address = True
-    addresses = socket.getaddrinfo(None, PORT_6, socket.AF_UNSPEC, socket.SOCK_STREAM,socket.IPPROTO_TCP)
+    addresses = socket.getaddrinfo(None, PORT_6, socket.AF_UNSPEC, socket.SOCK_STREAM, socket.IPPROTO_TCP)
     threads = []
     for a in addresses:
         threads.append(threading.Thread(target=connections, args=(a,)))
