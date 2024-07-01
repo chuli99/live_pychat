@@ -88,16 +88,16 @@ def connections(address):
             server.serve_forever()
     
     elif address[0] == socket.AF_INET6:
-        print("IPV6 connection")
-        with ChatServerIPV6(("::1", PORT), ChatHandler) as server:
-            print(f"Server started on ::1 :{PORT}")
+        with ChatServerIPV6((HOST_6, PORT_6), ChatHandler) as server:
+            print(f"Server started on {HOST_6}:{PORT_6}")
             server.serve_forever()
             
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 5555
+    HOST_6, PORT_6 = "::1", 5556
     socketserver.TCPServer.allow_reuse_address = True
-    addresses = socket.getaddrinfo("localhost", 5555, socket.AF_UNSPEC, socket.SOCK_STREAM)
+    addresses = socket.getaddrinfo(None, PORT_6, socket.AF_UNSPEC, socket.SOCK_STREAM,socket.IPPROTO_TCP)
     threads = []
     for a in addresses:
         threads.append(threading.Thread(target=connections, args=(a,)))
