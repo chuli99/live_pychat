@@ -11,8 +11,6 @@ def argparse_arguments():
     parser.add_argument("-p","--port", type=int, help="Port to connect to", default=5555)
     return parser.parse_args()
 
-
-
 def receive_messages(sock):
     while True:
         message = sock.recv(512).decode()
@@ -58,7 +56,7 @@ def main():
         return
     
     with sock:
-        # Mensaje de bienvenida del servidor
+        #Welcome message
         print(sock.recv(512).decode())
 
         while True:
@@ -103,7 +101,6 @@ def main():
                         receive_msg_thread.start()
                         send_msg_thread.start()
                 
-                        # Esperar que ambos hilos terminen
                         receive_msg_thread.join() 
                         send_msg_thread.join()
                     

@@ -21,8 +21,8 @@ class ChatHandler(socketserver.BaseRequestHandler):
             if room not in self.rooms:
                 self.request.sendall("Invalid room. Closing connection.\n".encode())
 
-            with self.rooms_lock:  # Proteger la modificación de self.rooms
-                self.rooms[room].append(self.request)  # Línea 29 protegida
+            with self.rooms_lock:  
+                self.rooms[room].append(self.request)  
             self.request.sendall(f"Welcome to {room} room!\n".encode())
             if messages.read_messages(room) == "missing file":
                 pass
@@ -43,14 +43,14 @@ class ChatHandler(socketserver.BaseRequestHandler):
 
                 print(f"Received from {self.client_address}->{username}: {message} in:({room} room)")
                 
-                # Guarda el mensaje en un txt
+                #Save message in txt
                 sent_message = (f"({username})->{message}")
                 print("Saving message")
                 messages.save_message(sent_message, room)
 
-                # Broadcast para enviar mensajes a todos los clientes en la misma sala:
-                with self.rooms_lock:  # Proteger la lectura de self.rooms
-                    clients = self.rooms[room][:]  # Copiar la lista de clientes para evitar problemas de concurrencia
+                #Broadcast para enviar mensajes a todos los clientes en la misma sala:
+                with self.rooms_lock:  
+                    clients = self.rooms[room][:]  
                 for client in clients:
                     try:
                         if client != self.request:
@@ -58,7 +58,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
                             client.sendall(sent_message.encode())
                     except:
                         client.close()
-                        with self.rooms_lock:  # Proteger la modificación de self.rooms
+                        with self.rooms_lock:  
                             self.rooms[room].remove(client)
                         print(f"Connection from {client.getpeername()} closed due to error")
 
@@ -66,7 +66,7 @@ class ChatHandler(socketserver.BaseRequestHandler):
         pass
 
     def finish(self):
-        with self.rooms_lock:  # Proteger la modificación de self.rooms
+        with self.rooms_lock:  
             for room, clients in self.rooms.items():
                 if self.request in clients:
                     clients.remove(self.request)
